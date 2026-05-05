@@ -1,0 +1,72 @@
+---
+title: "Speed proxy: faster Ollama inference on CPU hardware"
+description: "The built-in speed proxy trims the OpenClaude system prompt from ~10,000 to ~300 tokens before sending to Ollama, cutting first-token latency by up to 90%."
+---
+
+OpenClaude Portable includes a local HTTP proxy (`tools/local-proxy.js`) that sits between the OpenClaude engine and Ollama. When you run Ollama as your provider, the proxy intercepts every chat completion request and trims the large OpenClaude system prompt before it reaches the local model — dramatically reducing first-token latency on CPU-only or USB-connected hardware.
+
+<Note>
+The speed proxy only activates when Ollama is your selected provider. Cloud providers (OpenRouter, NVIDIA NIM, etc.) are unaffected.
+</Note>
+
+## How it works
+
+The proxy runs on port `11435` and forwards to Ollama on port `11434`. When the proxy starts, `OPENAI_BASE_URL` is automatically set to `http://localhost:11435/v1` instead of the default `http://localhost:11434/v1`.
+
+For every `POST /chat/completions` request, the proxy:
+1. Parses the JSON body
+2. Finds all messages with `role: "system"`
+3. Trims their content to **1,200 characters** (~300 tokens)
+4. Appends `[System prompt truncated for local model performance]`
+5. Forwards the modified request to Ollama
+
+```javascript tools/local-proxy.js
+const PROXY_PORT  = 11435;
+const OLLAMA_HOST = "127.0.0.1";
+const OLLAMA_PORT = 11434;
+
+const MAX_CHARS = 1200; // ~300 tokens
+
+function trimSystemPrompt(content) {
+  if (typeof content !== "string") return content;
+  if (content.length <= MAX_CHARS) return content;
+
+  const cut = content.lastIndexOf(". ", MAX_CHARS);
+  const trimPoint = cut > MAX_CHARS * 0.6 ? cut + 1 : MAX_CHARS;
+
+  return (
+    content.slice(0, trimPoint).trimEnd() +
+    "\n\n[System prompt truncated for local model performance]"
+  );
+}
+```
+
+## Performance impact
+
+| Metric | Without proxy | With proxy |
+|--------|--------------|-----------|
+| First-token latency (CPU) | 60–120 seconds | 5–20 seconds |
+| System prompt size | ~10,000 tokens | ~300 tokens |
+| Reduction | — | Up to 90% |
+
+## Lifecycle
+
+The proxy starts and stops automatically with `START.bat` / `start.sh`:
+
+- **Start**: launched in background as a minimized process before the OpenClaude engine
+- **Port conflict**: if port `11435` is already in use from a prior session, the proxy exits cleanly — `START.bat` kills any lingering proxy before starting a new one
+- **Stop**: killed when the session ends alongside the Ollama server
+
+## Logging
+
+All proxy activity is written to `data/proxy.log` — never to stdout or stderr, so it never corrupts the OpenClaude terminal UI. Example log entries:
+
+```text
+[2025-01-15T10:23:45.123Z] Proxy started on :11435 -> Ollama :11434
+[2025-01-15T10:24:01.456Z] Trimmed: 42350 -> 1198 chars (97% reduction)
+[2025-01-15T10:24:15.789Z] Trimmed: 38900 -> 1187 chars (96% reduction)
+```
+
+<Tip>
+If Ollama inference is still slow, the bottleneck may be USB 2.0 read speed rather than token count. Copy `data/ollama/` to a local SSD for best performance.
+</Tip>

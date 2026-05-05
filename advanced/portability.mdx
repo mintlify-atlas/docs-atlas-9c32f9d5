@@ -1,0 +1,66 @@
+---
+title: "Zero-footprint portability and cross-platform data"
+description: "OpenClaude Portable stores all config, sessions, and logs in data/ on your drive. Nothing writes to the host system — works across Windows, Linux, and macOS."
+---
+
+OpenClaude Portable achieves zero footprint by redirecting every environment variable that normally writes to the host system into the `data/` folder on your drive. The host machine is left completely clean after every session.
+
+## Environment variable redirections
+
+At launch, `START.bat` (Windows) and `start.sh` (Linux/macOS) set these variables before starting the engine:
+
+| Variable | Redirected to | Purpose |
+|----------|--------------|---------|
+| `CLAUDE_CONFIG_DIR` | `data/openclaude/` | Session history and agent memory |
+| `XDG_CONFIG_HOME` | `data/config/` | Application config |
+| `XDG_DATA_HOME` | `data/app_data/` | Application data and session logs |
+
+## The data/ folder
+
+```text
+data/
+├── ai_settings.env        # Active provider, model, and API key
+├── openclaude/            # Session history and agent memory
+├── ollama/                # Local Ollama binary and model storage
+│   └── data/              # Ollama model files
+├── chats/                 # Dashboard chat history (JSON files)
+├── models/                # Installed model manifest for dashboard
+├── config/                # XDG config redirect
+├── app_data/              # XDG data redirect / session logs
+└── proxy.log              # Speed proxy activity log
+```
+
+## Cross-platform compatibility
+
+The same `data/` folder works across all three platforms. The launcher detects your OS and architecture at runtime and downloads the appropriate Node.js binary:
+
+| Platform | Node.js directory | Architectures |
+|----------|------------------|---------------|
+| Windows | `engine/node-win-x64/` | x64 |
+| Linux | `engine/node-linux-x64/` or `node-linux-arm64/` | x64, arm64 |
+| macOS | `engine/node-darwin-x64/` or `node-darwin-arm64/` | x64, arm64 (Apple Silicon) |
+
+## Security
+
+- **No telemetry** — nothing is sent anywhere except to your chosen AI provider
+- **API key isolation** — keys are stored only in `data/ai_settings.env` on your drive
+- **Approval Mode** — in Normal Mode the agent asks before any file write or shell command
+- **Host clean** — no registry entries, no config files, no traces left on the host machine
+
+<Warning>
+`data/ai_settings.env` contains your API keys in plain text. Keep the drive physically secure, and consider encrypting the USB drive if it contains sensitive project code.
+</Warning>
+
+## Disk space
+
+| Component | Size |
+|-----------|------|
+| Node.js runtime | ~80 MB |
+| OpenClaude engine | ~5 MB |
+| GitPortable (Windows only) | ~300 MB |
+| Ollama engine | ~50 MB |
+| Local AI models | 800 MB – 8 GB (optional) |
+
+<Tip>
+You can run OpenClaude Portable from a regular folder on any machine — not just a USB drive. The portability guarantees apply equally: nothing touches the host system outside the project folder.
+</Tip>

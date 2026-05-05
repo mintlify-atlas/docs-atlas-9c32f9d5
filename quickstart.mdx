@@ -1,81 +1,149 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
-icon: 'rocket'
+title: "Launch OpenClaude Portable for the first time"
+description: "Step-by-step guide to launching OpenClaude Portable on Windows, Linux, or macOS — from copying the folder to running your first AI coding session."
 ---
 
-## Get started in three steps
+This page walks you through launching OpenClaude Portable for the first time — from copying the folder to your drive, through first-run setup, to selecting a provider and starting your first AI coding session.
 
-Get your documentation site running locally and make your first customization.
+<Note>
+  First-time setup requires an internet connection to download Node.js (~25 MB) and the OpenClaude engine (~5 MB). After that, only API calls to your chosen provider need a connection — or none at all if you use Ollama in offline mode.
+</Note>
 
-### Step 1: Set up your local environment
+## Launch steps
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+<Tabs>
+  <Tab title="Windows">
+    <Steps>
+      <Step title="Copy the folder to your USB drive or any directory">
+        Download and extract the OpenClaude Portable release. Place the `OpenClaude-Multi-Platform/` folder on your USB drive or any local directory. No installer or admin rights are required.
+      </Step>
+      <Step title="Run the Windows launcher">
+        Open a terminal in the folder and run:
 
-### Step 2: Deploy your changes
+        ```batch
+        .\START.bat
+        ```
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+        You can also double-click `START.bat` in File Explorer.
+      </Step>
+      <Step title="Wait for first-run setup to complete">
+        On first run, the launcher automatically downloads and installs:
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+        - **Node.js v22.14.0** (~25 MB) into `engine/node-win-x64/`
+        - **OpenClaude engine** (~5 MB) into `engine/node_modules/`
+        - **GitPortable** (required for Git Bash on Windows) into `engine/git-win-x64/`
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+        Subsequent launches skip this step entirely and go straight to the menu.
+      </Step>
+      <Step title="Choose your AI provider">
+        On first run, the provider selection menu appears. Enter the number for your preferred provider (1–7) and follow the prompts to enter and verify your API key. Your key is saved to `data/ai_settings.env` on your drive.
+      </Step>
+      <Step title="Select Launch AI from the main menu">
+        After provider setup completes, the main menu appears. Press `1` to launch the agent in Normal Mode, or wait 10 seconds for it to auto-launch.
 
-### Step 3: Go live
+        ```text
+        1) Launch AI       — Normal Mode (Auto-starts in 10s)
+        2) Limitless Mode  — Auto-executes everything (Advanced)
+        3) Open Dashboard  — View your chats visually
+        4) Change Provider — Switch your AI provider or API Key
+        5) Setup Offline   — Download local AI models (Ollama)
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="Linux / macOS">
+    <Steps>
+      <Step title="Copy the folder to any directory">
+        Download and extract the OpenClaude Portable release to any directory on your machine or USB drive. No installer or elevated privileges are required.
+      </Step>
+      <Step title="Make the launcher executable">
+        Open a terminal in the extracted folder and run:
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+        ```bash
+        chmod +x start.sh
+        ```
+
+        This only needs to be done once.
+      </Step>
+      <Step title="Run the launcher">
+        ```bash
+        ./start.sh
+        ```
+
+        On first run, the launcher detects your OS and architecture (x64 or arm64), then automatically downloads and installs:
+
+        - **Node.js v22.14.0** for your platform (~25 MB) into `engine/node-<platform>-<arch>/`
+        - **OpenClaude engine** (~5 MB) into `engine/node_modules/`
+
+        Subsequent launches skip this step entirely and go straight to the menu.
+      </Step>
+      <Step title="Choose your AI provider">
+        On first run, the provider selection menu appears. Enter the number for your preferred provider (1–7) and follow the prompts to enter and verify your API key. Your key is saved to `data/ai_settings.env` on your drive.
+      </Step>
+      <Step title="Select Launch AI from the main menu">
+        After provider setup completes, the main menu appears. Press `1` to launch the agent in Normal Mode, or wait 10 seconds for it to auto-launch.
+
+        ```text
+        1) Launch AI       — Normal Mode (Auto-starts in 10s)
+        2) Limitless Mode  — Auto-executes everything (Advanced)
+        3) Open Dashboard  — View your chats visually
+        4) Change Provider — Switch your AI provider or API Key
+        5) Setup Offline   — Download local AI models (Ollama)
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## First run vs. repeat launches
+
+| Scenario | What happens |
+|---|---|
+| **First run** | Downloads Node.js (~25 MB) and the OpenClaude engine (~5 MB), then prompts for provider and API key setup |
+| **Repeat launch** | Skips download and setup; checks for engine updates once per day, then opens the main menu directly |
+| **After `--offline` flag** | Skips the daily update check and opens the menu immediately |
+
+## Main menu options
+
+Each option in the main menu serves a distinct purpose:
+
+| Option | Description |
+|---|---|
+| **1) Launch AI — Normal Mode** | Starts the agent in the terminal. The agent asks for approval before writing any file or running any shell command. Auto-launches after 10 seconds if no key is pressed. |
+| **2) Limitless Mode** | Starts the agent in fully-autonomous mode. The agent executes file writes and shell commands without prompting for approval. |
+| **3) Open Dashboard** | Starts the web dashboard server and opens `http://localhost:3000` in your browser — a ChatGPT-style chat interface with agent mode and tool cards. |
+| **4) Change Provider** | Re-runs the provider selection menu so you can switch to a different AI provider or update your API key. |
+| **5) Setup Offline** | Downloads a local Ollama model so you can run the agent with no internet connection after setup. |
+
+## Launch flags
+
+Pass flags directly to the launcher script to change startup behavior:
+
+```bash
+# Skip the daily update check and open the menu immediately
+./start.sh --offline
+
+# Skip the menu and auto-launch in Limitless Mode
+./start.sh --quick
+```
+
+```batch
+:: Windows equivalents
+.\START.bat --offline
+.\START.bat --quick
+```
+
+| Flag | Effect |
+|---|---|
+| `--offline` | Skips the engine update check. Useful on air-gapped networks or slow connections. |
+| `--quick` | Bypasses the main menu and launches directly in Limitless Mode. |
+
+<Warning>
+  **Limitless Mode executes without approval.** In this mode the agent writes files and runs shell commands automatically, without asking first. Only use Limitless Mode on projects where you trust the agent to act autonomously.
+</Warning>
 
 ## Next steps
 
-Now that you have your docs running, explore these key features:
-
-<CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
+<Card title="Choose an AI provider" icon="network-wired" href="/providers/overview">
+  Compare all 7 supported providers — including free tiers and fully offline Ollama — and learn how to configure each one.
 </Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
-</CardGroup>
-
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>

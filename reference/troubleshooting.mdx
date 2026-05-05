@@ -1,0 +1,58 @@
+---
+title: "Troubleshooting common OpenClaude Portable issues"
+description: "Fix the most common OpenClaude Portable errors: Node.js not found, port conflicts, missing engine files, slow Ollama responses, and rejected API keys."
+---
+
+Most issues with OpenClaude Portable fall into a few categories: missing dependencies (resolved by re-running the launcher), port conflicts from previous sessions, or API key problems. This page covers the most common symptoms and their fixes.
+
+## Common errors and fixes
+
+| Symptom | Fix |
+|---------|-----|
+| `Node.js not found` | Run `START.bat` or `./start.sh` — it downloads Node.js automatically on first run |
+| `EADDRINUSE: port 11435` | The speed proxy from a previous session is still running. Restart `START.bat` — it kills the old proxy automatically |
+| `openclaude: dist/cli.mjs not found` | Engine install was interrupted. Pull the latest launcher and run `START.bat` again — it repairs incomplete installs |
+| `npm error could not determine executable to run` | Pull the latest launcher. The app now uses the verified bundled binary instead of `npx` |
+| `Claude Code on Windows requires git-bash` | Pull the latest launcher and run `START.bat` again — it installs/repairs bundled GitPortable |
+| `'D_ARGS' is not recognized` | Old version of `START.bat`. Pull the latest version |
+| Ollama response is very slow | Use a smaller model (`gemma3:1b`), or copy `data/ollama/` to a local SSD |
+| API key rejected | Verify your key at the provider's website; re-run option 4 (Change Provider) to update it |
+| Port 3000 already in use | The dashboard is already running — open http://localhost:3000 directly |
+| `openclaude` not found in PowerShell | Use `.\RESUME.bat <session-id>` instead of calling `openclaude` directly |
+
+## Engine repair
+
+If the OpenClaude engine installation is incomplete or corrupted, the launcher detects and repairs it automatically. Simply re-run:
+
+<CodeGroup>
+```batch Windows
+.\START.bat
+```
+```bash Linux / macOS
+./start.sh
+```
+</CodeGroup>
+
+The launcher checks for both `bin/openclaude` and `dist/cli.mjs`. If either is missing, it removes the partial install and re-runs `npm install @gitlawb/openclaude@latest`.
+
+## Ollama performance issues
+
+If Ollama inference is slow:
+
+1. **Use a smaller model** — `gemma3:1b` (~800 MB) is the fastest preset
+2. **Check USB speed** — USB 2.0 limits model read throughput; copy `data/ollama/` to a local SSD
+3. **Verify the proxy is running** — check `data/proxy.log` to confirm the speed proxy is active and trimming prompts
+
+## API key issues
+
+<Steps>
+  <Step title="Verify the key at the provider's website">
+    Log in to your provider dashboard and confirm the key is active and has remaining credits.
+  </Step>
+  <Step title="Re-enter the key via Change Provider">
+    Run `tools\Change_Provider.bat` (Windows) or `bash tools/change_provider.sh` (Linux/macOS) and re-enter your key. The launcher verifies it against the provider API before saving.
+  </Step>
+  <Step title="Check data/ai_settings.env">
+    Open `data/ai_settings.env` in a text editor and confirm the key is correct and has no extra spaces or line breaks.
+  </Step>
+</Steps>

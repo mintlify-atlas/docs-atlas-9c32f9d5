@@ -1,0 +1,207 @@
+---
+title: "Configure cloud AI providers in OpenClaude Portable"
+description: "Step-by-step setup guide for OpenRouter, NVIDIA NIM, DeepSeek, Google Gemini, Anthropic Claude, and OpenAI in OpenClaude Portable."
+---
+
+Cloud providers give you access to powerful hosted models without running any local hardware. During setup, the launcher verifies your API key against the provider's live endpoint before saving anything to disk — if the key is invalid, setup prompts you to re-enter it. Model lists are fetched live from each provider's API so you always see current options.
+
+<Note>
+  API keys are stored only in `data/ai_settings.env` on your drive. They are never written to the host machine's file system, registry, or environment. Unplugging the drive is all that's needed to remove every credential from a host PC.
+</Note>
+
+## Setup by provider
+
+<Tabs>
+  <Tab title="OpenRouter (recommended)">
+    OpenRouter is the recommended starting point for most users. It gives you access to over 200 models — including many free options — through a single API key and a single OpenAI-compatible endpoint.
+
+    Get your API key at [openrouter.ai](https://openrouter.ai).
+
+    <Steps>
+      <Step title="Select OpenRouter">
+        When the provider menu appears, enter `1` and press Enter.
+      </Step>
+      <Step title="Enter your API key">
+        Paste your OpenRouter API key at the prompt. The launcher verifies it against `https://openrouter.ai/api/v1/auth/key` before continuing. If verification fails, you are prompted to try again.
+      </Step>
+      <Step title="Choose free or paid models">
+        Select `1` for Free Models or `2` for Paid Models. The launcher fetches the current list from `https://openrouter.ai/api/v1/models` and displays up to 20 options. A final option lets you enter any custom model string manually.
+      </Step>
+      <Step title="Select a model">
+        Enter the number of your chosen model, or choose the last option and type a custom model string (for example, `google/gemini-2.5-pro:free`).
+      </Step>
+    </Steps>
+
+    **Environment variables saved to `data/ai_settings.env`:**
+
+    ```env
+    AI_PROVIDER=openai
+    CLAUDE_CODE_USE_OPENAI=1
+    OPENAI_API_KEY=<your key>
+    OPENAI_BASE_URL=https://openrouter.ai/api/v1
+    OPENAI_MODEL=<chosen model>
+    AI_DISPLAY_MODEL=<chosen model>
+    ```
+  </Tab>
+
+  <Tab title="NVIDIA NIM (recommended)">
+    NVIDIA NIM provides GPU-accelerated inference with a free tier of 1,000 credits per month. It is a strong choice for fast responses without a paid subscription.
+
+    Get your API key at [build.nvidia.com](https://build.nvidia.com).
+
+    <Steps>
+      <Step title="Select NVIDIA NIM">
+        When the provider menu appears, enter `2` and press Enter.
+      </Step>
+      <Step title="Enter your API key">
+        Paste your NVIDIA API key at the prompt. The launcher verifies it against `https://integrate.api.nvidia.com/v1/models`. If verification fails, you are prompted to try again.
+      </Step>
+      <Step title="Choose a model">
+        The launcher displays a combined list of curated models (including `qwen/qwen2.5-coder-32b-instruct`, `meta/llama-3.3-70b-instruct`, and `deepseek-ai/deepseek-v3.1-terminus`) followed by additional models fetched live from the NVIDIA NIM API. Enter the number of your chosen model, or select the last option to type a custom model string.
+      </Step>
+    </Steps>
+
+    **Environment variables saved to `data/ai_settings.env`:**
+
+    ```env
+    AI_PROVIDER=openai
+    CLAUDE_CODE_USE_OPENAI=1
+    OPENAI_API_KEY=<your key>
+    OPENAI_BASE_URL=https://integrate.api.nvidia.com/v1
+    OPENAI_MODEL=<chosen model>
+    AI_DISPLAY_MODEL=<chosen model>
+    CLAUDE_CODE_AGENT_LIST_IN_MESSAGES=false
+    CLAUDE_CODE_SIMPLE=1
+    ```
+
+    <Note>
+      `CLAUDE_CODE_AGENT_LIST_IN_MESSAGES=false` prevents system-reminder blocks from being injected as content arrays. NVIDIA NIM rejects those arrays with a 400 error, so this flag is set automatically.
+    </Note>
+  </Tab>
+
+  <Tab title="DeepSeek">
+    DeepSeek provides an OpenAI-compatible API with competitive pricing for coding and reasoning tasks.
+
+    Get your API key at [platform.deepseek.com](https://platform.deepseek.com).
+
+    <Steps>
+      <Step title="Select DeepSeek">
+        When the provider menu appears, enter `3` and press Enter.
+      </Step>
+      <Step title="Enter your API key">
+        Paste your DeepSeek API key at the prompt. The launcher verifies it against `https://api.deepseek.com/models`. If verification fails, you are prompted to try again.
+      </Step>
+      <Step title="Choose a model">
+        The launcher fetches available models live from `https://api.deepseek.com/models`. If the API call fails, it falls back to `deepseek-v4-flash` and `deepseek-v4-pro`. Enter the number of your chosen model, or select the last option to type a custom model string. Press Enter without typing to default to model 1.
+      </Step>
+    </Steps>
+
+    **Environment variables saved to `data/ai_settings.env`:**
+
+    ```env
+    AI_PROVIDER=openai
+    CLAUDE_CODE_USE_OPENAI=1
+    OPENAI_API_KEY=<your key>
+    OPENAI_BASE_URL=https://api.deepseek.com
+    OPENAI_MODEL=<chosen model>
+    AI_DISPLAY_MODEL=<chosen model>
+    ```
+  </Tab>
+
+  <Tab title="Google Gemini">
+    Google Gemini is available through AI Studio with a free tier for personal and low-volume use.
+
+    Get your API key at [aistudio.google.com](https://aistudio.google.com).
+
+    <Steps>
+      <Step title="Select Google Gemini">
+        When the provider menu appears, enter `4` and press Enter.
+      </Step>
+      <Step title="Enter your API key">
+        Paste your Gemini API key at the prompt. The launcher verifies it against `https://generativelanguage.googleapis.com/v1beta/models?key=<key>`. If verification fails, you are prompted to try again.
+      </Step>
+      <Step title="Choose a model">
+        The launcher fetches available `generateContent`-capable models from `https://generativelanguage.googleapis.com/v1alpha/models`, filtering out vision-only, embedding, and experimental models. Enter the number of your chosen model, or select the last option to type a custom model string. Press Enter without typing to default to model 1.
+      </Step>
+    </Steps>
+
+    **Environment variables saved to `data/ai_settings.env`:**
+
+    ```env
+    AI_PROVIDER=gemini
+    CLAUDE_CODE_USE_GEMINI=1
+    GEMINI_API_KEY=<your key>
+    GEMINI_MODEL=<chosen model>
+    AI_DISPLAY_MODEL=<chosen model>
+    ```
+  </Tab>
+
+  <Tab title="Anthropic Claude">
+    Anthropic Claude is the native provider for the underlying OpenClaude engine, accessed directly through the Anthropic API.
+
+    Get your API key at [console.anthropic.com](https://console.anthropic.com).
+
+    <Steps>
+      <Step title="Select Anthropic Claude">
+        When the provider menu appears, enter `5` and press Enter.
+      </Step>
+      <Step title="Enter your API key">
+        Paste your Anthropic API key at the prompt. The launcher verifies it against `https://api.anthropic.com/v1/models` using the `x-api-key` header and `anthropic-version: 2023-06-01`. If verification fails, you are prompted to try again.
+      </Step>
+      <Step title="Enter a model name">
+        Type a model name and press Enter, or press Enter without typing to use the default `claude-3-7-sonnet-20250219`.
+      </Step>
+    </Steps>
+
+    **Environment variables saved to `data/ai_settings.env`:**
+
+    ```env
+    AI_PROVIDER=anthropic
+    ANTHROPIC_API_KEY=<your key>
+    ANTHROPIC_MODEL=<chosen model>   # Windows only
+    AI_DISPLAY_MODEL=<chosen model>
+    ```
+
+    <Note>
+      On Windows, `START.bat` writes `ANTHROPIC_MODEL` in addition to `AI_DISPLAY_MODEL`. On Linux/macOS, `start.sh` writes only `AI_DISPLAY_MODEL`. Both launchers use `AI_DISPLAY_MODEL` as the active model identifier.
+    </Note>
+  </Tab>
+
+  <Tab title="OpenAI">
+    OpenAI gives you access to GPT-4o, GPT-4, and Codex models through the standard OpenAI API.
+
+    Get your API key at [platform.openai.com](https://platform.openai.com).
+
+    <Steps>
+      <Step title="Select OpenAI">
+        When the provider menu appears, enter `6` and press Enter.
+      </Step>
+      <Step title="Enter your API key">
+        Paste your OpenAI API key at the prompt. The launcher verifies it against `https://api.openai.com/v1/models`. If verification fails, you are prompted to try again.
+      </Step>
+      <Step title="Enter a model name">
+        Type a model name and press Enter, or press Enter without typing to use the default `gpt-4o`.
+      </Step>
+    </Steps>
+
+    **Environment variables saved to `data/ai_settings.env`:**
+
+    ```env
+    AI_PROVIDER=openai
+    CLAUDE_CODE_USE_OPENAI=1
+    OPENAI_API_KEY=<your key>
+    OPENAI_BASE_URL=https://api.openai.com/v1
+    OPENAI_MODEL=<chosen model>
+    AI_DISPLAY_MODEL=<chosen model>
+    ```
+  </Tab>
+</Tabs>
+
+## Switching providers
+
+To change your provider after initial setup, run the Change Provider tool:
+
+- **Windows:** `tools\Change_Provider.bat`
+- **Linux / macOS:** `tools/change_provider.sh`
+
+You can also reach it from the main menu by selecting option **4 — Change Provider**. The tool lets you change your model only, update your API key only, or perform a full reset that re-runs the provider selection wizard from scratch.

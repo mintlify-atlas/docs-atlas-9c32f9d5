@@ -1,0 +1,44 @@
+---
+title: "AI provider overview for OpenClaude Portable users"
+description: "Compare all 7 supported AI providers in OpenClaude Portable: OpenRouter, NVIDIA NIM, DeepSeek, Gemini, Claude, OpenAI, and offline Ollama."
+---
+
+OpenClaude Portable connects to AI models through a provider abstraction layer. On first run, an interactive menu walks you through selecting a provider and entering your API key. The launcher then writes all connection details — provider type, base URL, API key, and model name — into `data/ai_settings.env` on your drive. Every subsequent launch reads that file automatically and skips setup.
+
+## Provider comparison
+
+| Provider | Cost | API key source | Notes |
+|---|---|---|---|
+| **OpenRouter** | Free + paid models | [openrouter.ai](https://openrouter.ai) | 200+ models; free tier available; live model list fetched at setup |
+| **NVIDIA NIM** | Free tier (1,000 credits/month) | [build.nvidia.com](https://build.nvidia.com) | GPU-accelerated inference; curated + live model list |
+| **DeepSeek** | Paid API | [platform.deepseek.com](https://platform.deepseek.com) | OpenAI-compatible endpoint; live model list fetched at setup |
+| **Google Gemini** | Free tier available | [aistudio.google.com](https://aistudio.google.com) | Uses native Gemini API; live model list fetched at setup |
+| **Anthropic Claude** | Paid | [console.anthropic.com](https://console.anthropic.com) | Direct Anthropic API; default model `claude-3-7-sonnet-20250219` |
+| **OpenAI** | Paid | [platform.openai.com](https://platform.openai.com) | GPT and Codex models; default model `gpt-4o` |
+| **Ollama** | Free, fully offline | No API key required | Runs local models on CPU or GPU; requires initial download |
+
+## How provider selection works
+
+The first time you run `START.bat` or `./start.sh`, the launcher displays a numbered menu listing all seven providers. Enter the number for your chosen provider and follow the prompts to enter and verify your API key, then select a model. The setup saves the result to `data/ai_settings.env` and launches immediately.
+
+On all subsequent runs, the launcher loads `data/ai_settings.env` and skips the setup menu entirely. The ready screen shows your current provider and model name before presenting the main action menu.
+
+## Changing your provider
+
+You can switch provider or update your API key at any time without losing session history:
+
+- **Windows:** run `tools\Change_Provider.bat` from the main menu (option 4) or directly from Explorer.
+- **Linux / macOS:** run `tools/change_provider.sh` from the main menu (option 4) or directly in a terminal.
+
+The change provider tool lets you change your model, update your API key, or perform a full config reset that re-runs the initial setup wizard.
+
+## Explore providers
+
+<CardGroup cols={2}>
+  <Card title="Cloud providers" icon="cloud" href="/providers/cloud-providers">
+    Step-by-step setup for OpenRouter, NVIDIA NIM, DeepSeek, Google Gemini, Anthropic Claude, and OpenAI.
+  </Card>
+  <Card title="Ollama offline" icon="hard-drive" href="/providers/ollama-offline">
+    Run completely offline with local models on CPU or GPU. No API key required after the initial download.
+  </Card>
+</CardGroup>

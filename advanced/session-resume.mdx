@@ -1,0 +1,38 @@
+---
+title: "Resume interrupted OpenClaude sessions on Windows"
+description: "Use RESUME.bat to restart any interrupted OpenClaude Portable session by ID. Session history and agent memory are stored in data/openclaude/ on your drive."
+---
+
+OpenClaude sessions store their history and agent memory in `data/openclaude/` on your portable drive. If a session is interrupted — by closing the window, a crash, or power loss — you can resume it using the session ID.
+
+<Note>
+All session data lives in `data/openclaude/` on your drive, not on the host machine. Plug the drive into any compatible PC and your sessions are available.
+</Note>
+
+## Resume on Windows
+
+Run `RESUME.bat` from the OpenClaude Portable root, passing the session ID:
+
+```batch
+RESUME.bat <session-id>
+```
+
+The session ID is shown in the terminal when you start a session, and is also visible as a subdirectory name inside `data/openclaude/`.
+
+## Session storage
+
+| Path | Contents |
+|------|----------|
+| `data/openclaude/` | All session history and agent memory (`CLAUDE_CONFIG_DIR`) |
+| `data/config/` | XDG config data (`XDG_CONFIG_HOME`) |
+| `data/app_data/` | Application data and logs (`XDG_DATA_HOME`) |
+
+These environment variables are redirected at launch by `START.bat` / `start.sh`, ensuring nothing is written to the host system.
+
+## Linux / macOS
+
+There is no `RESUME.sh` equivalent, but session data persists in `data/openclaude/`. You can pass the session directory path directly to the OpenClaude engine if needed, or simply run `./start.sh` and reference previous work through the conversation history in the dashboard.
+
+<Tip>
+Back up the `data/` folder before moving between drives. It contains your API keys, session history, and any downloaded Ollama models.
+</Tip>

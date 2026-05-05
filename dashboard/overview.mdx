@@ -1,0 +1,90 @@
+---
+title: "Web dashboard and chat interface for OpenClaude Portable"
+description: "OpenClaude Portable includes a browser-based chat dashboard at localhost:3000. Manage providers, view chat history, monitor system info, and more."
+---
+
+The web dashboard is a ChatGPT-style browser UI included with every copy of OpenClaude Portable. It runs at `http://localhost:3000` via the bundled Node.js server (`dashboard/server.mjs`) and gives you a visual interface for chatting, managing providers, monitoring system status, and controlling Ollama — all without touching the terminal.
+
+## How to launch
+
+<Steps>
+  <Step title="From the main menu (recommended)">
+    Run `START.bat` (Windows) or `./start.sh` (Linux/macOS) and select option **3 — Open Dashboard** from the main menu:
+
+    ```text
+    3) Open Dashboard  — Web UI at http://localhost:3000
+    ```
+
+    The launcher starts the dashboard server and opens your browser automatically.
+  </Step>
+  <Step title="Directly from the tools folder">
+    You can also launch the dashboard without going through the main menu:
+
+    <Tabs>
+      <Tab title="Windows">
+        ```batch
+        tools\Open_Dashboard.bat
+        ```
+      </Tab>
+      <Tab title="Linux / macOS">
+        ```bash
+        bash tools/open_dashboard.sh
+        ```
+      </Tab>
+    </Tabs>
+
+    Both scripts start `dashboard/server.mjs` using the bundled Node.js binary and open your default browser to `http://localhost:3000`.
+  </Step>
+</Steps>
+
+<Note>
+  The dashboard server runs on port 3000. If the port is already in use, the dashboard is likely already running — open `http://localhost:3000` directly in your browser rather than launching a second instance.
+</Note>
+
+## What the dashboard provides
+
+<CardGroup cols={2}>
+  <Card title="Chat interface" icon="message">
+    Send messages to your configured AI provider and view the response inline. Create new conversations, switch between them, and delete old ones. Each conversation is stored as a JSON file in `data/chats/` and persists across restarts.
+  </Card>
+  <Card title="Provider management" icon="plug">
+    View and update your active AI provider configuration. The dashboard reads from and writes to `data/ai_settings.env` via the `/api/config` endpoint, so changes take effect on the next message without restarting.
+  </Card>
+  <Card title="System info" icon="microchip">
+    The **System** panel fetches `/api/system` and displays Node.js version, platform, architecture, Git availability, Ollama install status, engine version, and free and total disk space for the drive where OpenClaude Portable lives.
+  </Card>
+  <Card title="Session logs" icon="file-lines">
+    Browse and read log files from `data/app_data/` via `/api/logs`. The server walks up to three levels deep and returns the 50 most recently modified `.json`, `.log`, `.md`, and `.txt` files.
+  </Card>
+  <Card title="Ollama controls" icon="server">
+    Start and stop the Ollama server from the UI without opening a terminal. The dashboard exposes `/api/ollama/start`, `/api/ollama/stop`, and `/api/ollama/status` endpoints so you can manage local model serving entirely from the browser.
+  </Card>
+  <Card title="Engine updates" icon="arrow-rotate-right">
+    Check whether a newer version of the `@gitlawb/openclaude` engine is available via `/api/updates`, then install it with a single click using `/api/updates/install` — no command line required.
+  </Card>
+  <Card title="Working directory" icon="folder-open">
+    Set the directory that agent file operations are relative to via `/api/workdir`. By default it is the OpenClaude Portable root folder. Changing it redirects all agent `read_file`, `write_file`, `list_directory`, and `execute_command` calls to the new path.
+  </Card>
+  <Card title="Config export / import" icon="file-export">
+    Download your current `data/ai_settings.env` as a file via `/api/config/export`, or upload a previously saved config via `/api/config/import`. Useful for backing up your provider settings or moving them to a different drive.
+  </Card>
+</CardGroup>
+
+## Chat and agent modes
+
+The dashboard supports two distinct interaction modes, selectable per conversation:
+
+| Mode | Description |
+|---|---|
+| **Chat (Simple)** | Standard streaming chat — the AI responds in text only. Identical to using the CLI agent but accessible from the browser. Ideal for questions, code explanations, and short tasks. |
+| **Agent** | An agentic loop where the AI autonomously uses built-in tools (write files, read files, run commands, search code) to complete multi-step tasks. See [Agent mode](/dashboard/agent-mode) for full details. |
+
+## Chat history
+
+Every conversation is saved as a JSON file in `data/chats/` the moment the AI response completes. Files are named `chat_<timestamp>.json` and contain the full message history, title, and timestamps. Because `data/` is shared across platforms, conversations created on Windows are immediately visible when you plug the same drive into a Linux or macOS machine.
+
+The dashboard lists conversations sorted by last-updated time and shows a message count next to each entry. Deleting a conversation from the UI permanently removes the corresponding JSON file.
+
+<Tip>
+  Keep the dashboard open in a browser tab while you run the CLI agent (`START.bat` option 1 or 2). Both the CLI and the dashboard write to the same `data/` folder, so new CLI sessions appear in the chat history automatically without refreshing.
+</Tip>

@@ -1,0 +1,114 @@
+---
+title: "OpenClaude Portable: run AI anywhere, no install needed"
+description: "OpenClaude Portable bundles Node.js and the OpenClaude engine on a USB drive. Zero footprint — supports 7 AI providers on Windows, Linux, and macOS."
+---
+
+OpenClaude Portable is a self-contained AI coding agent that runs from a USB drive or any folder on your PC — with no installation, no admin rights, and no files written to the host machine. It wraps the open-source OpenClaude engine in a cross-platform launcher so you can plug in, run a single script, and start coding immediately on any Windows, Linux, or macOS machine.
+
+## What's included
+
+Every copy of OpenClaude Portable ships four components inside a single folder:
+
+- **Node.js runtime** — a bundled Node.js binary (v22.14.0) downloaded on first run and stored in `engine/`. The host machine never needs Node.js installed.
+- **OpenClaude engine** — the `@gitlawb/openclaude` npm package, installed into `engine/node_modules/` and kept up to date automatically once per day.
+- **Local speed proxy** — `tools/local-proxy.js` intercepts requests to Ollama and trims system prompts from ~10,000 tokens down to ~300 tokens, cutting first-token latency from 60–120 s to 5–20 s on CPU-only hardware.
+- **Web dashboard** — a ChatGPT-style browser UI served at `http://localhost:3000` with agent mode, tool cards, and thinking visualization.
+
+## Key features
+
+<CardGroup cols={2}>
+  <Card title="Zero footprint" icon="shield-halved">
+    All config, session history, API keys, and logs stay inside `data/` on your drive. The environment variables `CLAUDE_CONFIG_DIR`, `XDG_CONFIG_HOME`, and `XDG_DATA_HOME` are all redirected to `data/` so nothing touches the host system.
+  </Card>
+  <Card title="7 AI providers" icon="plug">
+    NVIDIA NIM, DeepSeek, OpenRouter, Google Gemini, Anthropic Claude, OpenAI, and Ollama (fully offline). Free tiers are available on NVIDIA NIM and OpenRouter.
+  </Card>
+  <Card title="Cross-platform" icon="hard-drive">
+    The shared `data/` folder works across Windows, Linux, and macOS. Carry one drive and launch from any OS without reconfiguring your provider or losing session history.
+  </Card>
+  <Card title="Local speed proxy" icon="bolt">
+    Trims Ollama system prompts by up to 90% before sending them to the model, dramatically improving response time on CPU-only hardware with no configuration required.
+  </Card>
+  <Card title="Web dashboard" icon="browser">
+    Open a browser-based chat interface with `Open Dashboard` from the main menu. Includes agent mode, tool cards, and a thinking visualizer — served locally at `http://localhost:3000`.
+  </Card>
+  <Card title="Limitless Mode" icon="infinity">
+    Optional fully-autonomous mode where the agent writes files and executes shell commands without asking for approval. Use with care on trusted projects.
+  </Card>
+  <Card title="Session resume" icon="rotate-right">
+    Resume any interrupted coding session on Windows using `RESUME.bat <session-id>`. Session history persists in `data/openclaude/` across platforms and reboots.
+  </Card>
+  <Card title="Auto-updates" icon="arrow-rotate-right">
+    The launcher checks for engine updates once per day and upgrades automatically. Pass `--offline` to skip the update check and launch immediately.
+  </Card>
+</CardGroup>
+
+## Project folder structure
+
+```text
+OpenClaude-Multi-Platform/
+│
+├── START.bat                  Windows entry point — handles everything
+├── start.sh                   Linux/macOS entry point
+├── RESUME.bat                 Resume a previous session by ID (Windows)
+│
+├── data/                      All persistent data (shared across platforms)
+│   ├── ai_settings.env        Active provider, model, and API key
+│   ├── openclaude/            Session history and agent memory
+│   ├── ollama/                Local Ollama binary and model storage
+│   └── proxy.log              Speed proxy activity log (silent background)
+│
+├── engine/                    Node.js runtime + OpenClaude npm package
+│   ├── node-win-x64/          Bundled Node.js (Windows)
+│   └── node_modules/
+│       └── @gitlawb/openclaude/
+│
+├── tools/                     Helper scripts
+│   ├── local-proxy.js         System-prompt trimming proxy for local models
+│   ├── setup_local_models.ps1 Ollama model downloader (Windows)
+│   ├── setup_local_models.sh  Ollama model downloader (Linux/macOS)
+│   ├── Change_Provider.bat    Switch AI provider or API key (Windows)
+│   ├── change_provider.sh     Switch AI provider or API key (Linux/macOS)
+│   ├── Open_Dashboard.bat     Launch web dashboard (Windows)
+│   ├── open_dashboard.sh      Launch web dashboard (Linux/macOS)
+│   └── Setup_Local_Models.bat Wrapper launcher for local model setup
+│
+└── dashboard/                 Web dashboard UI
+    ├── server.mjs             Dashboard Node.js server
+    └── index.html             Chat interface
+```
+
+## System requirements
+
+| Platform | Requirement |
+|---|---|
+| **Windows** | Windows 10 or later — Node.js is bundled, nothing else needed |
+| **Linux** | `curl` (pre-installed on most distributions) |
+| **macOS** | `curl` (pre-installed) |
+
+Disk space: approximately 150 MB for Node.js and the engine. Local Ollama models require additional space ranging from 800 MB to 8 GB depending on the model you choose.
+
+## Main menu options
+
+When you run `START.bat` or `./start.sh`, the following menu appears:
+
+```text
+1) Launch AI       — Normal Mode      (asks before writing files or running commands)
+2) Limitless Mode  — Auto-executes    (fully autonomous, no approval prompts)
+3) Open Dashboard  — Web UI at http://localhost:3000
+4) Change Provider — Switch model or API key
+5) Setup Offline   — Download local Ollama models
+```
+
+The menu auto-selects **Launch AI (Normal Mode)** after 10 seconds if no key is pressed.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Get started" icon="rocket" href="/quickstart">
+    Step-by-step launch instructions for Windows, Linux, and macOS.
+  </Card>
+  <Card title="AI providers" icon="network-wired" href="/providers/overview">
+    Compare all 7 supported providers and learn how to configure each one.
+  </Card>
+</CardGroup>

@@ -1,0 +1,147 @@
+---
+title: "Agent mode in the OpenClaude Portable web dashboard"
+description: "Agent mode gives the dashboard AI an agentic loop with file and shell tools. The AI can write files, read files, run commands, and search code."
+---
+
+Agent mode is an agentic loop built into the web dashboard where the AI autonomously uses built-in tools to complete multi-step coding tasks. Instead of generating a text reply in a single turn, the agent iterates — calling tools, reading results, calling more tools — until the task is done or the iteration limit is reached. You can watch each step happen in real time through the dashboard's event stream.
+
+## How it works
+
+When you send a message in agent mode, the dashboard posts to `/api/agent`, which starts the `runAgent` function in `dashboard/server.mjs`. The function maintains a running conversation that includes tool call results alongside the normal message history, then calls the configured AI provider repeatedly until the model stops requesting tools and produces a final text response.
+
+The full sequence for a single iteration:
+
+1. The server sends an `agent_thinking` event to the browser.
+2. The AI is called with the current conversation history and all tool definitions attached.
+3. If the AI returns reasoning text alongside tool calls, an `agent_reasoning` event is emitted.
+4. For each tool call the AI requests, the server emits a `tool_call` event.
+5. In **Normal mode**, tools that write to disk or execute commands pause for user approval (see [Tool approval](#tool-approval) below).
+6. The tool executes and the result is appended to the conversation as a `tool_result` event.
+7. The loop repeats until the AI returns a response with no tool calls, at which point an `agent_text` event is emitted and the loop ends.
+
+<Note>
+  The agent runs a maximum of **15 iterations** per request (`MAX_ITERATIONS = 15` in `server.mjs`). For very complex tasks — such as scaffolding a full project from scratch — break the work into smaller requests so each one stays well within the limit.
+</Note>
+
+## Built-in tools
+
+The agent has access to five tools, defined in the `TOOL_DEFS` array in `dashboard/server.mjs`. All file paths are resolved relative to the configured working directory.
+
+| Tool | Description | Key behaviour |
+|---|---|---|
+| `write_file` | Create or overwrite a file with given content | Creates parent directories automatically; requires approval in Normal mode |
+| `read_file` | Read the full contents of a file | Returns file content and size in bytes |
+| `list_directory` | List files and subdirectories in a path | Use `"."` to list the current working directory |
+| `execute_command` | Run a shell command and capture its output | 30-second timeout; output capped at 5,000 characters; requires approval in Normal mode |
+| `search_files` | Search for a text pattern across files using `grep` (Linux/macOS) or `findstr` (Windows) | Returns `file:line` matches; limited to the first 30 matches, up to 5,000 characters |
+
+### Tool parameter reference
+
+```javascript
+// write_file
+{ path: "src/index.js", content: "console.log('hello');" }
+
+// read_file
+{ path: "README.md" }
+
+// list_directory
+{ path: "." }
+
+// execute_command
+{ command: "npm install" }
+
+// search_files
+{ pattern: "TODO", path: "src" }
+```
+
+## Normal mode vs Limitless mode
+
+The dashboard exposes the same Normal / Limitless distinction as the CLI launcher, controlled by the `mode` field in the agent request.
+
+| Mode | Behaviour |
+|---|---|
+| **Normal** | `write_file` and `execute_command` pause before executing and emit an `approval_needed` event. The user must approve or reject each action in the browser before the loop continues. |
+| **Limitless** | All five tools execute immediately without any approval prompt. The agent completes tasks fully autonomously. |
+
+<Warning>
+  In Limitless mode the agent executes shell commands without asking for confirmation. A prompt such as "clean up the project" could delete files or run destructive commands. Only use Limitless mode on projects where you trust the agent to act without supervision.
+</Warning>
+
+## Tool approval
+
+When the agent requests a `write_file` or `execute_command` call in Normal mode, the server:
+
+1. Emits an `approval_needed` SSE event containing the tool name, call ID, and the exact arguments (file path and content, or the full command string).
+2. Pauses the agentic loop and waits for a response from the browser at `/api/agent/approve`.
+3. If the user approves, the tool executes and the loop continues.
+4. If the user rejects, the server appends a `{ success: false, error: "User rejected this action" }` result to the conversation and emits `tool_rejected`. The agent sees the rejection and can attempt an alternative approach.
+5. If no response arrives within **120 seconds**, the approval times out and is automatically treated as a rejection.
+
+## Working directory
+
+All file paths the agent uses are resolved relative to the **working directory**, which defaults to the OpenClaude Portable root folder. You can change it at any time from the dashboard's settings panel (backed by the `/api/workdir` endpoint). The new directory is immediately reflected in the agent's system prompt, so the next request uses it automatically.
+
+Setting a working directory to your active project folder means you can tell the agent `"add a README"` and it will write `README.md` in the right place without needing an absolute path.
+
+## System prompt context
+
+When the agentic loop starts, the server prepends a system message to the conversation that tells the AI:
+
+- Its current working directory (the `WORK_DIR` value at request time)
+- Which mode it is running in (Normal or Limitless), which changes how it phrases its plan before acting
+
+In Normal mode the system prompt instructs the agent to briefly explain what it is about to do before writing or executing. In Limitless mode it instructs the agent to act decisively and completely without asking clarifying questions.
+
+## What the agent can do
+
+Because the agent can read, write, list, execute, and search, it can handle real coding workflows end to end:
+
+- Scaffold a new project (create folders, write boilerplate files, initialise a package)
+- Read existing source files and refactor them
+- Run `npm install`, `pytest`, `make`, or any other build command and report the output
+- Search a codebase for a pattern and fix every occurrence
+- Write tests, run them, read the failure output, and fix the implementation
+
+## SSE event reference
+
+The `/api/agent` endpoint responds with a `text/event-stream`. Each event is a `data:` line containing a JSON object. Your browser or custom client can consume these to build a real-time progress UI.
+
+```javascript
+// Emitted at the start of each iteration
+{ type: "agent_thinking", iteration: 1 }
+
+// Emitted when the AI returns reasoning text alongside tool calls
+{ type: "agent_reasoning", content: "I'll start by reading the existing file...", iteration: 1 }
+
+// Emitted when the AI requests a tool
+{ type: "tool_call", id: "call_abc123", name: "write_file", args: { path: "index.js", content: "..." }, needsApproval: true }
+
+// Emitted in Normal mode before a write/exec tool runs — pause and show the user
+{ type: "approval_needed", id: "call_abc123", name: "write_file", args: { path: "index.js", content: "..." } }
+
+// Emitted when a tool completes successfully
+{ type: "tool_result", id: "call_abc123", name: "write_file", result: { success: true, message: "File written: index.js (42 chars)" } }
+
+// Emitted when the user rejects a tool in Normal mode
+{ type: "tool_rejected", id: "call_abc123" }
+
+// Emitted when the agent produces its final text response
+{ type: "agent_text", content: "I've created index.js with the required exports." }
+
+// Emitted when an unrecoverable error occurs
+{ type: "agent_error", error: "API Error: rate limit exceeded" }
+
+// Emitted when the agentic loop ends (success or iteration limit reached)
+{ type: "done", fullText: "I've created index.js with the required exports." }
+```
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Dashboard overview" icon="browser" href="/dashboard/overview">
+    Learn about all dashboard features — provider management, system info, Ollama controls, and config export.
+  </Card>
+  <Card title="Providers" icon="plug" href="/providers/overview">
+    Check which AI providers support tool calling for agent mode — not all models support function calling.
+  </Card>
+</CardGroup>

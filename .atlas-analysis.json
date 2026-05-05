@@ -1,0 +1,91 @@
+{
+  "projectType": "cli-tool",
+  "projectName": "OpenClaude Portable",
+  "projectDescription": "A fully portable AI coding agent that runs from a USB drive on any PC — bundling Node.js, the OpenClaude engine, and a web dashboard with support for 7 AI providers including offline Ollama.",
+  "theme": "aspen",
+  "primaryColor": "#94cb04",
+  "lightColor": "#545454",
+  "darkColor": null,
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "AI Providers",
+            "pages": [
+              "providers/overview",
+              "providers/cloud-providers",
+              "providers/ollama-offline"
+            ]
+          },
+          {
+            "group": "Web Dashboard",
+            "pages": [
+              "dashboard/overview",
+              "dashboard/agent-mode"
+            ]
+          },
+          {
+            "group": "Advanced",
+            "pages": [
+              "advanced/speed-proxy",
+              "advanced/session-resume",
+              "advanced/portability"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Reference",
+        "groups": [
+          {
+            "group": "Configuration",
+            "pages": [
+              "reference/configuration",
+              "reference/environment-variables",
+              "reference/cli-flags"
+            ]
+          },
+          {
+            "group": "Troubleshooting",
+            "pages": [
+              "reference/troubleshooting",
+              "reference/faq"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Zero-install portable launcher for Windows, Linux, and macOS",
+    "Support for 7 AI providers: NVIDIA NIM, DeepSeek, OpenRouter, Gemini, Anthropic Claude, OpenAI, and Ollama",
+    "Bundled Node.js runtime and GitPortable — nothing installed on the host machine",
+    "Local speed proxy that trims system prompts by up to 90% for faster Ollama inference",
+    "Web dashboard (ChatGPT-style UI) with agent mode, tool cards, and thinking visualization",
+    "Limitless Mode for fully autonomous agent execution without approval prompts",
+    "Session resume via RESUME.bat with persistent data stored in a portable data/ folder",
+    "Auto-update check once per day with --offline flag to skip"
+  ],
+  "publicApiSurface": [
+    "START.bat — Windows entry point with interactive menu",
+    "start.sh — Linux/macOS entry point with interactive menu",
+    "RESUME.bat <session-id> — Resume a previous session on Windows",
+    "--offline flag — Skip update check on launch",
+    "--quick flag — Auto-launch in Limitless Mode",
+    "tools/Change_Provider.bat / change_provider.sh — Switch AI provider or API key",
+    "tools/Open_Dashboard.bat / open_dashboard.sh — Launch web dashboard on port 3000",
+    "tools/Setup_Local_Models.bat / setup_local_models.sh — Download and configure Ollama models",
+    "tools/local-proxy.js — System prompt trimming proxy (port 11435 -> 11434)",
+    "dashboard/server.mjs — Dashboard HTTP server on port 3000",
+    "data/ai_settings.env — Provider configuration file"
+  ]
+}

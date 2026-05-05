@@ -1,0 +1,114 @@
+---
+title: "Configuring OpenClaude Portable with ai_settings.env"
+description: "All OpenClaude Portable settings live in data/ai_settings.env. Learn how to read, edit, and reset this file to change providers, models, and API keys."
+---
+
+All configuration for OpenClaude Portable lives in a single file: `data/ai_settings.env`. This file is created automatically during first-run provider setup and updated whenever you run **Change Provider**. You can also edit it directly with any text editor.
+
+## File location
+
+```text
+<your-drive>/data/ai_settings.env
+```
+
+## File format
+
+The file uses simple `KEY=VALUE` pairs. Lines starting with `#` are comments and are ignored.
+
+```bash data/ai_settings.env
+# ========================================================
+# Portable AI - Master Switchboard
+# ========================================================
+AI_PROVIDER=openai
+CLAUDE_CODE_USE_OPENAI=1
+OPENAI_API_KEY=sk-or-v1-xxxxxxxxxxxxx
+OPENAI_BASE_URL=https://openrouter.ai/api/v1
+OPENAI_MODEL=qwen/qwen-2.5-coder-32b-instruct:free
+AI_DISPLAY_MODEL=qwen/qwen-2.5-coder-32b-instruct:free
+```
+
+## Per-provider configuration examples
+
+<Tabs>
+  <Tab title="OpenRouter">
+```bash
+AI_PROVIDER=openai
+CLAUDE_CODE_USE_OPENAI=1
+OPENAI_API_KEY=sk-or-v1-your-key
+OPENAI_BASE_URL=https://openrouter.ai/api/v1
+OPENAI_MODEL=qwen/qwen-2.5-coder-32b-instruct:free
+AI_DISPLAY_MODEL=qwen/qwen-2.5-coder-32b-instruct:free
+```
+  </Tab>
+  <Tab title="NVIDIA NIM">
+```bash
+AI_PROVIDER=openai
+CLAUDE_CODE_USE_OPENAI=1
+OPENAI_API_KEY=nvapi-your-key
+OPENAI_BASE_URL=https://integrate.api.nvidia.com/v1
+OPENAI_MODEL=meta/llama-3.1-70b-instruct
+AI_DISPLAY_MODEL=meta/llama-3.1-70b-instruct
+CLAUDE_CODE_AGENT_LIST_IN_MESSAGES=false
+CLAUDE_CODE_SIMPLE=1
+```
+  </Tab>
+  <Tab title="Google Gemini">
+```bash
+AI_PROVIDER=gemini
+CLAUDE_CODE_USE_GEMINI=1
+GEMINI_API_KEY=AIzaSy-your-key
+GEMINI_MODEL=gemini-2.5-pro
+AI_DISPLAY_MODEL=gemini-2.5-pro
+```
+  </Tab>
+  <Tab title="Anthropic Claude">
+```bash
+AI_PROVIDER=anthropic
+ANTHROPIC_API_KEY=sk-ant-your-key
+AI_DISPLAY_MODEL=claude-3-7-sonnet-20250219
+```
+  </Tab>
+  <Tab title="OpenAI">
+```bash
+AI_PROVIDER=openai
+CLAUDE_CODE_USE_OPENAI=1
+OPENAI_API_KEY=sk-your-key
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_MODEL=gpt-4o
+AI_DISPLAY_MODEL=gpt-4o
+```
+  </Tab>
+  <Tab title="Ollama">
+```bash
+AI_PROVIDER=ollama
+CLAUDE_CODE_USE_OPENAI=1
+OPENAI_API_KEY=ollama
+OPENAI_BASE_URL=http://localhost:11434/v1
+OPENAI_MODEL=llama3.2:3b
+AI_DISPLAY_MODEL=llama3.2:3b
+```
+  </Tab>
+</Tabs>
+
+## Changing your configuration
+
+The recommended way is to run the Change Provider tool:
+
+<CodeGroup>
+```batch Windows
+tools\Change_Provider.bat
+```
+```bash Linux / macOS
+bash tools/change_provider.sh
+```
+</CodeGroup>
+
+You can also edit `data/ai_settings.env` directly in any text editor. Changes take effect on the next launch.
+
+## Resetting configuration
+
+Delete `data/ai_settings.env` and restart the launcher. The first-run provider selection menu will appear again.
+
+<Warning>
+`data/ai_settings.env` contains your API key in plain text. Do not share this file or commit it to version control.
+</Warning>

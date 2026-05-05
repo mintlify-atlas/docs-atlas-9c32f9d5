@@ -1,0 +1,82 @@
+---
+title: "Run OpenClaude Portable in fully offline mode with Ollama"
+description: "Set up Ollama for completely offline AI coding in OpenClaude Portable. Download local models and use the speed proxy to boost inference performance."
+---
+
+Ollama lets you run OpenClaude Portable with no internet connection and no API key. Models run entirely on your machine's CPU or GPU, so there are no usage costs, no rate limits, and no data leaving your device. This makes Ollama the right choice for air-gapped environments, privacy-sensitive codebases, or situations where you want to work anywhere without a network connection.
+
+<Note>
+  Setting up Ollama requires an internet connection to download the Ollama engine and your chosen models. After that initial download, the entire setup is self-contained on your drive and runs fully offline.
+</Note>
+
+## Setting up Ollama
+
+Run the local model setup tool to download the Ollama engine and pull your first model:
+
+- **Windows:** `tools\Setup_Local_Models.bat`
+- **Linux / macOS:** `tools/setup_local_models.sh`
+
+You can also reach it from the main menu by selecting option **5 — Setup Offline**.
+
+The tool downloads the Ollama binary for your platform into `data/ollama/`, stores model data in `data/ollama/data/`, and writes the Ollama provider configuration to `data/ai_settings.env` when setup finishes.
+
+## Available preset models
+
+The setup tool offers five preset models organized by size and use case:
+
+| Model | Size | Speed | Notes |
+|---|---|---|---|
+| Gemma 4 E2B Q4_K_M | ~3.1 GB | Fastest | Best balance of speed and quality |
+| Gemma 4 E2B Q6_K | ~4.5 GB | Fast | Stronger output; good for CPU and GPU |
+| Gemma 4 E4B Q4_K_M | ~5.0 GB | Moderate | Recommended for most users |
+| Qwen 3.5 9B | ~6.6 GB | Moderate | Supports text and image inputs |
+| Ministral 3 8B | ~6.0 GB | Moderate | Reliable daily driver |
+
+You can also select multiple presets in one run by entering comma-separated numbers (for example, `1,4`).
+
+For faster responses on limited hardware, these smaller models work well with OpenClaude:
+
+| Model | Size | Speed |
+|---|---|---|
+| `gemma3:1b` | ~800 MB | Fastest |
+| `qwen2.5:1.5b` | ~1 GB | Fast |
+| `phi3:mini` | ~2.3 GB | Moderate |
+
+## Custom models
+
+The setup tool includes a **Custom** option (press `C` at the model selection prompt). Enter any valid Ollama tag from [ollama.com/library](https://ollama.com/library) — for example, `mistral-nemo` or `phi4`. The tool pulls the model through `ollama pull` and registers it as the active model in `data/ai_settings.env`.
+
+## How the speed proxy works
+
+Running large system prompts against a local CPU model causes long delays before the first token appears. OpenClaude Portable includes a speed proxy at `tools/local-proxy.js` that automatically intercepts every request when Ollama is active.
+
+The proxy listens on port **11435** and forwards requests to Ollama on port **11434**, trimming the OpenClaude system prompt from approximately 10,000 tokens down to approximately 300 tokens before the request reaches the model. This reduces first-token latency from 60–120 seconds to 5–20 seconds on CPU-only hardware — a reduction of up to 90%.
+
+The proxy runs silently in the background and logs its activity to `data/proxy.log`. No configuration is required; it starts and stops automatically alongside Ollama when you launch or exit OpenClaude.
+
+## Performance tips
+
+<Tip>
+  If response times are slow, copy `data/ollama/` to your local SSD. USB 2.0 drives have limited read throughput that becomes the bottleneck when loading large model weights. Running the same model from an SSD can cut load time dramatically.
+</Tip>
+
+Use a smaller model (`gemma3:1b` or `qwen2.5:1.5b`) when working on a CPU-only machine or when you need fast responses for short tasks. Larger models like Qwen 3.5 9B produce higher-quality output but are better suited to machines with a dedicated GPU.
+
+## Environment variables
+
+The following variables are written to `data/ai_settings.env` after Ollama setup completes:
+
+```env
+AI_PROVIDER=ollama
+CLAUDE_CODE_USE_OPENAI=1
+OPENAI_API_KEY=ollama
+OPENAI_BASE_URL=http://localhost:11434/v1
+OPENAI_MODEL=<chosen model>
+AI_DISPLAY_MODEL=<chosen model>
+```
+
+When the speed proxy is active, the launcher overrides `OPENAI_BASE_URL` at runtime to `http://localhost:11435/v1` so that requests pass through the proxy before reaching Ollama. The value in `data/ai_settings.env` remains `http://localhost:11434/v1` and is only overridden in memory for the duration of the session.
+
+<Warning>
+  Limitless Mode — where the agent executes file writes and shell commands without asking for approval — is particularly powerful when combined with Ollama. Because there are no API costs or rate limits, the agent can run long autonomous tasks with no interruptions. Use Limitless Mode only on projects and machines where you trust the agent to act freely.
+</Warning>

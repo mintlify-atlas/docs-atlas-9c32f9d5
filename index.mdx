@@ -1,133 +1,63 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
-icon: 'star'
+title: "OpenClaude Portable: AI Coding Agent from Any USB Drive"
+description: "Run a full-featured AI coding agent on any PC without installation. Supports 7 AI providers, includes a web dashboard, and stores everything on your drive."
 ---
 
-## Setting up
+OpenClaude Portable is a zero-install AI coding agent you can carry on a USB drive and run on any Windows, Linux, or macOS machine. It bundles Node.js, the OpenClaude engine, and a web-based chat dashboard — all self-contained inside a single folder. Plug in, launch, and start coding with your choice of AI provider.
 
-Get your documentation site up and running in minutes.
-
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
-
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+<CardGroup cols={2}>
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Get up and running on Windows, Linux, or macOS in minutes — no installation needed.
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="AI Providers" icon="network-wired" href="/providers/overview">
+    Choose from 7 cloud and local AI providers including free tiers and fully offline Ollama.
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Web Dashboard" icon="browser" href="/dashboard/overview">
+    Use the ChatGPT-style browser UI for agent mode, tool cards, and thinking visualization.
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="Configuration" icon="gear" href="/reference/configuration">
+    Understand the ai_settings.env file and all environment variables that control behavior.
   </Card>
-</Columns>
+</CardGroup>
 
-## Create beautiful pages
+## How it works
 
-Everything you need to create world-class documentation.
+OpenClaude Portable wraps the open-source [OpenClaude](https://github.com/gitlawb/openclaude) engine in a cross-platform launcher that requires nothing from the host machine. On first run it downloads Node.js (~25 MB) and the OpenClaude engine (~5 MB), then guides you through provider setup. Every subsequent launch skips setup and opens the main menu directly.
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+<Steps>
+  <Step title="Copy the folder to your USB drive (or any directory)">
+    Download and extract the OpenClaude Portable release to your USB drive or a local folder. No installer, no admin rights required.
+  </Step>
+  <Step title="Launch the starter script">
+    Run `START.bat` on Windows or `./start.sh` on Linux/macOS. On first run, Node.js and the engine download automatically.
+  </Step>
+  <Step title="Choose an AI provider">
+    Pick from 7 providers — OpenRouter and NVIDIA NIM have free tiers. Enter your API key, which is stored only in `data/ai_settings.env` on your drive.
+  </Step>
+  <Step title="Start coding">
+    Select **Launch AI** from the main menu. The agent runs in your terminal or open the **Web Dashboard** for a browser-based chat interface.
+  </Step>
+</Steps>
 
-## Make your content agent ready
+## Key features
 
-Make your docs work for humans and AI agents alike.
-
-<Columns cols={2}>
-  <Card
-    title="Prompt component"
-    icon="robot"
-    href="/agent-ready/prompt"
-  >
-    Embed shareable AI prompts readers can copy or open in Cursor.
+<CardGroup cols={2}>
+  <Card title="Zero footprint" icon="shield-halved">
+    All config, session history, and API keys stay inside `data/` — nothing written to the host system.
   </Card>
-  <Card
-    title="Visibility"
-    icon="eye"
-    href="/agent-ready/visibility"
-  >
-    Show different content to humans and agents reading your docs.
+  <Card title="7 AI providers" icon="plug">
+    NVIDIA NIM, DeepSeek, OpenRouter, Google Gemini, Anthropic Claude, OpenAI, and Ollama (offline).
   </Card>
-  <Card
-    title="Contextual menu"
-    icon="bolt"
-    href="/agent-ready/contextual"
-  >
-    Give readers one-click access to Claude, ChatGPT, Cursor, and more.
+  <Card title="Local speed proxy" icon="bolt">
+    Trims system prompts by up to 90% before sending to Ollama, cutting first-token latency from 60–120s to 5–20s.
   </Card>
-  <Card
-    title="AI coding tools"
-    icon="wand-magic-sparkles"
-    href="/ai-tools/claude-code"
-  >
-    Set up Claude Code, Cursor, or Windsurf with Mintlify's skill.
+  <Card title="Limitless Mode" icon="infinity">
+    Optional fully-autonomous mode where the agent executes file writes and shell commands without asking for approval.
   </Card>
-</Columns>
-
-## Need inspiration?
-
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+  <Card title="Session resume" icon="rotate-right">
+    Resume any interrupted session with `RESUME.bat <session-id>` on Windows.
+  </Card>
+  <Card title="Cross-platform data" icon="hard-drive">
+    The `data/` folder works across Windows, Linux, and macOS — carry one drive for all platforms.
+  </Card>
+</CardGroup>

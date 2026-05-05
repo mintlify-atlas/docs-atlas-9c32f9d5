@@ -1,0 +1,53 @@
+---
+title: "Environment variables reference for OpenClaude Portable"
+description: "Complete reference for all environment variables read and written by OpenClaude Portable, including provider settings, path redirections, and engine flags."
+---
+
+OpenClaude Portable uses environment variables both to configure the AI engine and to redirect data paths away from the host system. These variables are set automatically at launch — you normally interact with them only through `data/ai_settings.env`.
+
+## Provider variables
+
+These are written to `data/ai_settings.env` during provider setup and loaded at each launch.
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `AI_PROVIDER` | Active provider type: `openai`, `gemini`, `anthropic`, `ollama` | `openai` |
+| `AI_DISPLAY_MODEL` | Human-readable model name shown in the title bar | `gpt-4o` |
+| `OPENAI_API_KEY` | API key for OpenAI-compatible providers (OpenRouter, NVIDIA NIM, DeepSeek, OpenAI, Ollama) | `sk-or-v1-...` |
+| `OPENAI_BASE_URL` | Base URL for OpenAI-compatible API | `https://openrouter.ai/api/v1` |
+| `OPENAI_MODEL` | Model identifier for OpenAI-compatible providers | `gpt-4o` |
+| `ANTHROPIC_API_KEY` | API key for Anthropic Claude | `sk-ant-...` |
+| `ANTHROPIC_MODEL` | Model identifier for Anthropic (written by `START.bat` on Windows; `start.sh` uses `AI_DISPLAY_MODEL` only) | `claude-3-7-sonnet-20250219` |
+| `GEMINI_API_KEY` | API key for Google Gemini | `AIzaSy...` |
+| `GEMINI_MODEL` | Model identifier for Gemini | `gemini-2.5-pro` |
+| `CLAUDE_CODE_USE_OPENAI` | Set to `1` to use OpenAI-compatible mode | `1` |
+| `CLAUDE_CODE_USE_GEMINI` | Set to `1` to use Gemini mode | `1` |
+
+## Engine behavior flags
+
+These may be written to `ai_settings.env` for specific providers.
+
+| Variable | Description | When set |
+|----------|-------------|----------|
+| `CLAUDE_CODE_AGENT_LIST_IN_MESSAGES=false` | Stops system-reminder blocks being injected as content arrays (required for strict providers like NVIDIA NIM that reject 400 errors on unexpected formats) | NVIDIA NIM provider |
+| `CLAUDE_CODE_SIMPLE=1` | Enables simplified mode for providers with strict message formatting | NVIDIA NIM provider |
+
+## Path redirection variables
+
+Set at launch by `START.bat` / `start.sh` — not stored in `ai_settings.env`.
+
+| Variable | Redirected to | Purpose |
+|----------|--------------|---------|
+| `CLAUDE_CONFIG_DIR` | `data/openclaude/` | OpenClaude session history and agent memory |
+| `XDG_CONFIG_HOME` | `data/config/` | XDG base directory for config |
+| `XDG_DATA_HOME` | `data/app_data/` | XDG base directory for data |
+
+## Ollama-specific variables
+
+Set temporarily at launch when Ollama is the active provider.
+
+| Variable | Value | Purpose |
+|----------|-------|---------|
+| `OLLAMA_MODELS` | `data/ollama/data` | Tells Ollama where to store and find model files |
+| `OPENAI_BASE_URL` | `http://localhost:11435/v1` | Redirected to the speed proxy when proxy is active |
+| `CLAUDE_CODE_GIT_BASH_PATH` | Path to `git-win-x64/bin/bash.exe` | Windows only — required by OpenClaude on Windows |

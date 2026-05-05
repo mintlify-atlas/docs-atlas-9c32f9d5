@@ -1,0 +1,68 @@
+---
+title: "CLI flags and launch options for OpenClaude Portable"
+description: "Reference for all command-line flags accepted by START.bat and start.sh, including --offline to skip updates and --quick to auto-launch Limitless Mode."
+---
+
+`START.bat` (Windows) and `start.sh` (Linux/macOS) accept command-line flags that modify launch behavior. Pass them directly after the script name.
+
+## Available flags
+
+| Flag | Description |
+|------|-------------|
+| `--offline` | Skip the daily engine update check. Useful on air-gapped networks or slow connections. |
+| `--quick` | Skip the main menu and launch immediately in Limitless Mode (fully autonomous, no approval prompts). |
+
+## Usage
+
+<CodeGroup>
+```batch Windows
+.\START.bat --offline
+.\START.bat --quick
+.\START.bat --offline --quick
+```
+```bash Linux / macOS
+./start.sh --offline
+./start.sh --quick
+./start.sh --offline --quick
+```
+</CodeGroup>
+
+## Flag details
+
+### --offline
+
+Skips the daily engine update check. By default, the launcher checks for a newer version of the OpenClaude engine once per day (the check timestamp is stored in `data/last_update_check.txt`). With `--offline`, this check is skipped entirely and no network call is made on startup.
+
+<Note>
+The `--offline` flag does not prevent API calls to your AI provider. It only skips the engine version check. To use OpenClaude fully offline, combine `--offline` with the Ollama provider.
+</Note>
+
+### --quick
+
+Bypasses the main menu and launches the AI engine immediately in **Limitless Mode** (`--dangerously-skip-permissions`). The agent will execute file writes and shell commands without asking for confirmation.
+
+<Warning>
+`--quick` enables Limitless Mode automatically. The agent can create, modify, and delete files and run shell commands without prompting. Use only in controlled environments where you trust the task being performed.
+</Warning>
+
+## Main menu options (interactive)
+
+When launched without `--quick`, the interactive menu offers 5 options with a 10-second auto-launch timer that defaults to option 1 (Normal Mode):
+
+| Option | Action |
+|--------|--------|
+| `1` | Launch AI — Normal Mode (asks before writing files or running commands) |
+| `2` | Limitless Mode — auto-executes everything without approval |
+| `3` | Open Dashboard — launches web UI at http://localhost:3000 |
+| `4` | Change Provider — switch AI provider or API key |
+| `5` | Setup Offline — download local Ollama models |
+
+## RESUME.bat (Windows only)
+
+Resume a previous interrupted session by ID:
+
+```batch
+RESUME.bat <session-id>
+```
+
+Session IDs are visible in the terminal output when a session starts and as directory names inside `data/openclaude/`.
